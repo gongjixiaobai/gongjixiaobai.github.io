@@ -4,39 +4,27 @@
   
   
   <entry>
-    <title>测试博客2</title>
-    <link href="/2022/03/01/%E6%B5%8B%E8%AF%95%E5%8D%9A%E5%AE%A22/"/>
-    <url>/2022/03/01/%E6%B5%8B%E8%AF%95%E5%8D%9A%E5%AE%A22/</url>
+    <title>延时消息</title>
+    <link href="/2022/03/01/%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/"/>
+    <url>/2022/03/01/%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/</url>
     
-    <content type="html"><![CDATA[]]></content>
-    
-    
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>测试文章</title>
-    <link href="/2022/03/01/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/"/>
-    <url>/2022/03/01/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/</url>
-    
-    <content type="html"><![CDATA[]]></content>
+    <content type="html"><![CDATA[<p>延时消息（定时消息）是指在异步场景下，生产者发送的消息不希望被消费者马上消费，而是在延时或在指定时间消费。延时消费场景应用比较广泛，如计算电商订单是否支付、活动时间内任务是否完成。</p><h2 id="实现方案"><a href="#实现方案" class="headerlink" title="实现方案"></a>实现方案</h2><h3 id="基于外部存储实现的方案"><a href="#基于外部存储实现的方案" class="headerlink" title="基于外部存储实现的方案"></a>基于外部存储实现的方案</h3><figure class="highlight yaml"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">外部存储指的是在MQ本身自带的存储以外又引入的其他存储系统。</span><br></code></pre></td></tr></table></figure><p>基于外部存储的方案实际都是一样的套路，将MQ和延时模块区分开来，延时消息模块是一个独立的服务&#x2F;进程。消息先保存在其他存储介质，等消息到期在投递到MQ。当消息进入延时模块已经到期，则直接投递。</p><img src="/2022/03/01/%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%98%E5%82%A8%E5%AE%9E%E7%8E%B0.png" class=""><h4 id="基于数据库（如MySQL）"><a href="#基于数据库（如MySQL）" class="headerlink" title="基于数据库（如MySQL）"></a>基于数据库（如MySQL）</h4><p>基于关系型数据库（如MySQL）延时消息表的方式来实现。</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> `delay_msg` (<br>  `id` <span class="hljs-type">bigint</span> unsigned <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span> AUTO_INCREMENT,<br>  `delivery_time` DATETIME <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span> COMMENT <span class="hljs-string">&#x27;投递时间&#x27;</span>,<br>  `payloads` <span class="hljs-type">blob</span> COMMENT <span class="hljs-string">&#x27;消息内容&#x27;</span>,<br>  <span class="hljs-keyword">PRIMARY</span> KEY (`id`),<br>  KEY `time_index` (`delivery_time`)<br>)<br></code></pre></td></tr></table></figure><p>通过定时线程定时扫描到期的消息，然后进行投递。定时线程的扫描间隔理论上就是你延时消息的最小时间精度。</p><p>优点：</p><ul><li>实现简单；</li></ul><p>缺点：</p><ul><li>B+Tree索引不适合消息场景的大量写入；</li></ul><h4 id="基于Redis"><a href="#基于Redis" class="headerlink" title="基于Redis"></a>基于Redis</h4><img src="/2022/03/01/%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/Redis%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF%E5%AE%9E%E7%8E%B0.png" class=""><ul><li>Messages Pool 所有的延时消息存放，结构为KV结构，key为消息ID，value为一个具体的message（这里选择Redis Hash结构主要是因为hash结构能存储较大的数据量，数据较多时候会进行渐进式rehash扩容，并且对于HSET和HGET命令来说时间复杂度都是O(1)）</li><li>Delayed Queue是16个有序队列（队列支持水平扩展），结构为ZSET，value 为 messages pool中消息ID，score为过期时间（<strong>分为多个队列是为了提高扫描的速度）</strong></li><li>Worker 代表处理线程，通过定时任务扫描 Delayed Queue 中到期的消息</li></ul><p>这个方案选用 Redis 存储在我看来有几点考虑。</p><ul><li>Redis ZSET 很适合实现延时队列</li><li>性能问题，虽然 ZSET 插入是一个 O(logn) 的操作，但是Redis 基于内存操作，并且内部做了很多性能方面的优化。</li></ul><p>但是这个方案其实也有需要斟酌的地方，上述方案通过创建多个 Delayed Queue 来满足对于并发性能的要求，但这也带来了多个 Delayed Queue 如何在多个节点情况下均匀分配，并且很可能出现到期消息并发重复处理的情况，是否要引入分布式锁之类的并发控制设计？</p><p>在量不大的场景下，上述方案的架构其实可以蜕化成主从架构，只允许主节点来处理任务，从节点只做容灾备份。实现难度更低更可控。</p><h4 id="定时线程检查的缺陷与改进"><a href="#定时线程检查的缺陷与改进" class="headerlink" title="定时线程检查的缺陷与改进"></a>定时线程检查的缺陷与改进</h4><p>上述几个方案中，都通过线程定时扫描的方案来获取到期的消息。</p><p>定时线程的方案在消息量较少的时候，会浪费资源，在消息量非常多的时候，又会出现因为扫描间隔设置不合理导致延时时间不准确的问题。可以借助 JDK Timer 类中的思想，通过 wait-notify 来节省 CPU 资源。</p><p>获取中最近的延时消息，然后wait(执行时间-当前时间)，这样就不需要浪费资源到达时间时会自动响应，如果有新的消息进入，并且比我们等待的消息还要小，那么直接notify唤醒，重新获取这个更小的消息，然后又wait，如此循环。</p><h3 id="RocketMQ"><a href="#RocketMQ" class="headerlink" title="RocketMQ"></a>RocketMQ</h3><p>RocketMQ 开源版本支持延时消息，但是只支持 18 个 Level 的延时，并不支持任意时间。只不过这个 Level 在 RocketMQ 中可以自定义的，所幸来说对普通业务算是够用的。默认值为“1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h”，18个level。</p><p>通俗的讲，设定了延时 Level 的消息会被暂存在名为 <code>SCHEDULE_TOPIC_XXXX</code>的topic中，并根据 level 存入特定的queue，queueId &#x3D; delayTimeLevel – 1，<font color='red'><strong>即一个queue只存相同延时的消息，保证具有相同发送延时的消息能够顺序消费。</strong></font>broker会调度地消费SCHEDULE_TOPIC_XXXX，将消息写入真实的topic。</p><p>优点：</p><ul><li>Level 数固定，每个 Level 有自己的定时器，开销不大</li><li>将 Level 相同的消息放入到同一个 Queue 中，保证了同一 Level 消息的顺序性；不同 Level 放到不同的 Queue 中，保证了投递的时间准确性；</li><li>通过只支持固定的Level，将不同延时消息的排序变成了固定Level Topic 的追加写操作</li></ul><p>缺点：</p><ul><li>Level 配置的修改代价太大，固定 Level 不灵活</li><li>CommitLog 会因为延时消息的存在变得很大</li></ul><h3 id="QMQ"><a href="#QMQ" class="headerlink" title="QMQ"></a>QMQ</h3><p>QMQ提供任意时间的延时&#x2F;定时消息，你可以指定消息在未来两年内(可配置)任意时间内投递。</p><p> QMQ 是目前开源 MQ 中延时消息设计最合理的。里面设计的核心简单来说就是 <strong>多级时间轮 + 延时加载 + 延时消息单独磁盘存储</strong>。</p><p>QMQ的延时&#x2F;定时消息使用的是两层 hash wheel 来实现的。</p><p>第一层位于磁盘上，每个小时为一个刻度(默认为一个小时一个刻度，可以根据实际情况在配置里进行调整)，每个刻度会生成一个日志文件(schedule log)，因为QMQ支持两年内的延时消息(默认支持两年内，可以进行配置修改)，则最多会生成 2 * 366 * 24 &#x3D; 17568 个文件(如果需要支持的最大延时时间更短，则生成的文件更少)。</p><p>第二层在内存中，当消息的投递时间即将到来的时候，会将这个小时的消息索引(索引包括消息在schedule log中的offset和size)从磁盘文件加载到内存中的hash wheel上，内存中的hash wheel则是以500ms为一个刻度。</p><img src="/2022/03/01/%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/640.jfif" class=""><p>总结一下设计上的亮点：</p><ul><li>时间轮算法适合延时&#x2F;定时消息的场景，省去延时消息的排序，插入删除操作都是 O(1) 的时间复杂度；</li><li>通过多级时间轮设计，支持了超大时间跨度的延时消息；</li><li>通过延时加载，内存中只会有最近要消费的消息，更久的延时消息会被存储在磁盘中，对内存友好；</li><li>延时消息单独存储（schedule log），不会影响到正常消息的空间回收；</li></ul><h3 id="RabbitMQ"><a href="#RabbitMQ" class="headerlink" title="RabbitMQ"></a>RabbitMQ</h3><ul><li><p>死信队列。实际就是利用一个没有消费者的Queue1，等待消息过期后，通过交换机转发到Queue2来进行消费，消息的延迟时间就是消息在Queue1中的存活时间。局限性：延迟消息的延迟时间是依赖于Queue1的x-message-ttl的，也就是说，需要支持多少种延迟的时间，就得提前设置好多少个无消费类的Queue，而且由于转发绑定的Queue2需要配到交换机中，比较死板，而真实的业务中消费类肯定是不一样的。</p></li><li><p>插件实现。在rabbitmq 3.5.7及以上的版本提供了一个插件（rabbitmq-delayed-message-exchange）来实现延迟队列功能。在需要发送延迟消息队列的项目中，声明一个x-delayed-message类型的交换机来使用delayed-messaging特性，注意这个交换机并不是rabbitmq本身的，而是插件提供的，一定要是x-delayed-message类型，绑定的queue就是正常的queue即可，不需要额外多余的queue(这是和不用插件方式的最大区别及好处)</p></li></ul>]]></content>
     
     
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>Hello World</title>
-    <link href="/2022/03/01/hello-world/"/>
-    <url>/2022/03/01/hello-world/</url>
-    
-    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><pre><code class="hljs bash">$ hexo new <span class="hljs-string">&quot;My New Post&quot;</span><br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo server<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo generate<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo deploy<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
+    <categories>
+      
+      <category>学习</category>
+      
+    </categories>
     
     
+    <tags>
+      
+      <tag>中间件</tag>
+      
+      <tag>架构</tag>
+      
+    </tags>
     
   </entry>
   
