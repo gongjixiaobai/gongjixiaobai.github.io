@@ -4,6 +4,54 @@
   
   
   <entry>
+    <title>docker-compose使用</title>
+    <link href="/2022/03/07/docker-docker-compose%E4%BD%BF%E7%94%A8/"/>
+    <url>/2022/03/07/docker-docker-compose%E4%BD%BF%E7%94%A8/</url>
+    
+    <content type="html"><![CDATA[<h5 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h5><p>首先介绍几个术语。</p><ul><li>服务 (<code>service</code>)：一个应用容器，实际上可以运行多个相同镜像的实例。</li><li>项目 (<code>project</code>)：由一组关联的应用容器组成的一个完整业务单元。</li></ul><p>可见，一个项目可以由多个服务（容器）关联而成，<code>Compose</code> 面向项目进行管理。</p><h5 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h5><p>最常见的项目是 web 网站，该项目应该包含 web 应用和缓存。</p><p>下面我们用 <code>Python</code> 来建立一个能够记录页面访问次数的 web 网站。</p><h5 id="web-应用"><a href="#web-应用" class="headerlink" title="web 应用"></a>web 应用</h5><p>新建文件夹，在该目录中编写 <code>app.py</code> 文件</p><figure class="highlight python"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> flask <span class="hljs-keyword">import</span> Flask<br><span class="hljs-keyword">from</span> redis <span class="hljs-keyword">import</span> Redis<br><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">import</span> socket<br> <br>app = Flask(__name__)<br>redis = Redis(host=os.environ.get(<span class="hljs-string">&#x27;REDIS_HOST&#x27;</span>, <span class="hljs-string">&#x27;127.0.0.1&#x27;</span>), port=<span class="hljs-number">6379</span>)<br> <br> <br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&#x27;/&#x27;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">hello</span>():<br>    redis.incr(<span class="hljs-string">&#x27;hits&#x27;</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;Hello Container World! I have been seen %s times and my hostname is %s.\n&#x27;</span> % (redis.get(<span class="hljs-string">&#x27;hits&#x27;</span>),socket.gethostname())<br> <br> <br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    app.run(host=<span class="hljs-string">&quot;0.0.0.0&quot;</span>, port=<span class="hljs-number">5000</span>, debug=<span class="hljs-literal">True</span>)<br></code></pre></td></tr></table></figure><h5 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h5><p>编写 <code>Dockerfile</code> 文件，内容为</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">FROM` `python:3``.6``LABEL` `maintaner=``&quot;weiming02&quot;``COPY` `. /app``WORKDIR` `/app``RUN` `pip install flask redis``EXPOSE` `5000``CMD` `[ ``&quot;python&quot;``, ``&quot;app.py&quot;` `]<br></code></pre></td></tr></table></figure><h5 id="docker-compose-yml"><a href="#docker-compose-yml" class="headerlink" title="docker-compose.yml"></a>docker-compose.yml</h5><p>编写 <code>docker-compose.yml</code> 文件，这个是 Compose 使用的主模板文件。</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">version: &quot;3&quot;<br>services:<br>  redis:<br>    image: redis<br>  web:<br>    build:<br>      context: .<br>      dockerfile: Dockerfile<br>    ports:<br>      - 5000:5000<br>    environment:<br>      REDIS_HOST: redis<br></code></pre></td></tr></table></figure><h5 id="运行-compose-项目"><a href="#运行-compose-项目" class="headerlink" title="运行 compose 项目"></a>运行 compose 项目</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">docker-compose up -d<br></code></pre></td></tr></table></figure><p>此时访问本地 <code>5000</code> 端口，每次刷新页面，计数就会加 1。</p>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>docker</tag>
+      
+      <tag>docker-compose</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>docker-compose简介</title>
+    <link href="/2022/03/07/docker-docker-compose/"/>
+    <url>/2022/03/07/docker-docker-compose/</url>
+    
+    <content type="html"><![CDATA[<h5 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h5><p><code>Compose</code> 项目是 Docker 官方的开源项目，负责实现对 Docker 容器集群的快速编排。其代码目前在 <a href="https://github.com/docker/compose">https://github.com/docker/compose</a> 上开源。</p><p>我们知道使用一个 <code>Dockerfile</code> 模板文件，可以让用户很方便的定义一个单独的应用容器。然而，在日常工作中，经常会碰到需要多个容器相互配合来完成某项任务的情况。例如要实现一个 Web 项目，除了 Web 服务容器本身，往往还需要再加上后端的数据库服务容器，甚至还包括负载均衡容器等。</p><p><code>Compose</code> 恰好满足了这样的需求。它允许用户通过一个单独的 <code>docker-compose.yml</code> 模板文件（YAML 格式）来定义一组相关联的应用容器为一个项目（project）。</p><p><code>Compose</code> 中有两个重要的概念：</p><ul><li>服务 (<code>service</code>)：一个应用的容器，实际上可以包括若干运行相同镜像的容器实例。</li><li>项目 (<code>project</code>)：由一组关联的应用容器组成的一个完整业务单元，在 <code>docker-compose.yml</code> 文件中定义。</li></ul><p><code>Compose</code> 的默认管理对象是项目，通过子命令对项目中的一组容器进行便捷地生命周期管理。</p><p><code>Compose</code> 项目由 Python 编写，实现上调用了 Docker 服务提供的 API 来对容器进行管理。因此，只要所操作的平台支持 Docker API，就可以在其上利用 <code>Compose</code> 来进行编排管理。</p><h5 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h5><p>linux系统命令行安装方式</p><figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><pre><code class="hljs shell">sudo pip3 install docker-compose<br></code></pre></td></tr></table></figure><p>或者</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo curl -L https://github.com/docker/compose/releases/download/`curl -Ls -o /dev/null -w %&#123;url_effective&#125; https://github.com/docker/compose/releases/latest | awk -F / &#x27;&#123;print $NF&#125;&#x27;`/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose<br>sudo chmod +x /usr/local/bin/docker-compose<br></code></pre></td></tr></table></figure><h5 id="卸载"><a href="#卸载" class="headerlink" title="卸载"></a>卸载</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo` `rm` `/usr/local/bin/docker-compose<br></code></pre></td></tr></table></figure>]]></content>
+    
+    
+    <categories>
+      
+      <category>docker</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>docker</tag>
+      
+      <tag>docker-compose</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>mybatis面试总结</title>
     <link href="/2022/03/04/mybatis%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/"/>
     <url>/2022/03/04/mybatis%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/</url>
