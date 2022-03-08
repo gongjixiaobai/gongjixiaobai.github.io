@@ -16,22 +16,22 @@
   <meta name="author" content="weiming">
   <meta name="keywords" content="">
   
-    <meta name="description" content="术语首先介绍几个术语。  服务 (service)：一个应用容器，实际上可以运行多个相同镜像的实例。 项目 (project)：由一组关联的应用容器组成的一个完整业务单元。  可见，一个项目可以由多个服务（容器）关联而成，Compose 面向项目进行管理。 场景最常见的项目是 web 网站，该项目应该包含 web 应用和缓存。 下面我们用 Python 来建立一个能够记录页面访问次数的 web 网">
+    <meta name="description" content="1.FROM FROM scratch #制作base image FROM centos #使用base image FROM ubuntu:14.04  尽量使用官方的image作为base images 2.LABELLABEL maintainer &#x3D; “&amp;#119;&amp;#x65;&amp;#x69;&amp;#x6d;&amp;#x69;&amp;#x6e;&amp;#x67;&amp;#48;&amp;#x32;&amp;#x40;&amp;#x6">
 <meta property="og:type" content="article">
-<meta property="og:title" content="docker-compose使用">
-<meta property="og:url" content="http://example.com/2022/03/07/docker-docker-compose%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:title" content="Dockerfile最佳实践">
+<meta property="og:url" content="http://example.com/2022/03/08/docker-Dockerfile%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/index.html">
 <meta property="og:site_name" content="公鸡小白">
-<meta property="og:description" content="术语首先介绍几个术语。  服务 (service)：一个应用容器，实际上可以运行多个相同镜像的实例。 项目 (project)：由一组关联的应用容器组成的一个完整业务单元。  可见，一个项目可以由多个服务（容器）关联而成，Compose 面向项目进行管理。 场景最常见的项目是 web 网站，该项目应该包含 web 应用和缓存。 下面我们用 Python 来建立一个能够记录页面访问次数的 web 网">
+<meta property="og:description" content="1.FROM FROM scratch #制作base image FROM centos #使用base image FROM ubuntu:14.04  尽量使用官方的image作为base images 2.LABELLABEL maintainer &#x3D; “&amp;#119;&amp;#x65;&amp;#x69;&amp;#x6d;&amp;#x69;&amp;#x6e;&amp;#x67;&amp;#48;&amp;#x32;&amp;#x40;&amp;#x6">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-03-07T09:28:02.000Z">
-<meta property="article:modified_time" content="2022-03-08T03:16:28.798Z">
+<meta property="article:published_time" content="2022-03-08T10:10:31.000Z">
+<meta property="article:modified_time" content="2022-03-08T10:25:07.846Z">
 <meta property="article:author" content="weiming">
 <meta property="article:tag" content="docker">
-<meta property="article:tag" content="docker-compose">
+<meta property="article:tag" content="Dockerfile">
 <meta name="twitter:card" content="summary_large_image">
   
   
-  <title>docker-compose使用 - 公鸡小白</title>
+  <title>Dockerfile最佳实践 - 公鸡小白</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -177,7 +177,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="docker-compose使用">
+            <span class="h2" id="subtitle" title="Dockerfile最佳实践">
               
             </span>
 
@@ -187,8 +187,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2022-03-07 17:28" pubdate>
-        2022年3月7日 下午
+      <time datetime="2022-03-08 18:10" pubdate>
+        2022年3月8日 晚上
       </time>
     </span>
   
@@ -198,7 +198,7 @@
   
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.1k 字
+      1.5k 字
     </span>
   
 
@@ -207,7 +207,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      10 分钟
+      13 分钟
     </span>
   
 
@@ -244,29 +244,54 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">docker-compose使用</h1>
+            <h1 style="display: none">Dockerfile最佳实践</h1>
             
             <div class="markdown-body">
-              <h5 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h5><p>首先介绍几个术语。</p>
-<ul>
-<li>服务 (<code>service</code>)：一个应用容器，实际上可以运行多个相同镜像的实例。</li>
-<li>项目 (<code>project</code>)：由一组关联的应用容器组成的一个完整业务单元。</li>
-</ul>
-<p>可见，一个项目可以由多个服务（容器）关联而成，<code>Compose</code> 面向项目进行管理。</p>
-<h5 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h5><p>最常见的项目是 web 网站，该项目应该包含 web 应用和缓存。</p>
-<p>下面我们用 <code>Python</code> 来建立一个能够记录页面访问次数的 web 网站。</p>
-<h5 id="web-应用"><a href="#web-应用" class="headerlink" title="web 应用"></a>web 应用</h5><p>新建文件夹，在该目录中编写 <code>app.py</code> 文件</p>
-<figure class="highlight python"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> flask <span class="hljs-keyword">import</span> Flask<br><span class="hljs-keyword">from</span> redis <span class="hljs-keyword">import</span> Redis<br><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">import</span> socket<br> <br>app = Flask(__name__)<br>redis = Redis(host=os.environ.get(<span class="hljs-string">&#x27;REDIS_HOST&#x27;</span>, <span class="hljs-string">&#x27;127.0.0.1&#x27;</span>), port=<span class="hljs-number">6379</span>)<br> <br> <br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&#x27;/&#x27;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">hello</span>():<br>    redis.incr(<span class="hljs-string">&#x27;hits&#x27;</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;Hello Container World! I have been seen %s times and my hostname is %s.\n&#x27;</span> % (redis.get(<span class="hljs-string">&#x27;hits&#x27;</span>),socket.gethostname())<br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    app.run(host=<span class="hljs-string">&quot;0.0.0.0&quot;</span>, port=<span class="hljs-number">5000</span>, debug=<span class="hljs-literal">True</span>)<br></code></pre></td></tr></table></figure>
+              <h5 id="1-FROM"><a href="#1-FROM" class="headerlink" title="1.FROM"></a>1.FROM</h5><ol>
+<li>FROM scratch #制作base image</li>
+<li>FROM centos #使用base image</li>
+<li>FROM ubuntu:14.04</li>
+</ol>
+<p><em>尽量使用官方的image作为base images</em></p>
+<h5 id="2-LABEL"><a href="#2-LABEL" class="headerlink" title="2.LABEL"></a>2.LABEL</h5><p>LABEL maintainer &#x3D; “<a href="mailto:&#119;&#x65;&#x69;&#x6d;&#x69;&#x6e;&#x67;&#48;&#x32;&#x40;&#x6d;&#x65;&#x67;&#x76;&#105;&#x69;&#46;&#99;&#111;&#x6d;">&#119;&#x65;&#x69;&#x6d;&#x69;&#x6e;&#x67;&#48;&#x32;&#x40;&#x6d;&#x65;&#x67;&#x76;&#105;&#x69;&#46;&#99;&#111;&#x6d;</a>“</p>
+<p>LABEL version&#x3D;”1.0”</p>
+<p>LABEL description&#x3D;”this is description”</p>
+<p> <em>Metadata不可少</em></p>
+<h5 id="3-RUN"><a href="#3-RUN" class="headerlink" title="3.RUN"></a>3.RUN</h5><figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><pre><code class="hljs shell">RUN yum update &amp;&amp; yum install -y vim \<br>    python-dev<br></code></pre></td></tr></table></figure>
 
-<h5 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h5><p>编写 <code>Dockerfile</code> 文件，内容为</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><br>FROM python:3.6<br>LABEL maintaner=&quot;weiming&quot;<br>COPY . /app<br>WORKDIR /app<br>RUN pip install flask redis<br>EXPOSE 5000<br>CMD [ &quot;python&quot;, &quot;app.py&quot; ]<br></code></pre></td></tr></table></figure>
+<p><em>为了美观，复杂的RUN请用反斜线换行，避免无用分层，合并多条命令成一行</em></p>
+<h5 id="4-WORKDIR"><a href="#4-WORKDIR" class="headerlink" title="4.WORKDIR"></a>4.WORKDIR</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">WORKDIR /test #如果没有会自动创建<br>WORKDIR demo<br>RUN pwd<br></code></pre></td></tr></table></figure>
 
-<h5 id="docker-compose-yml"><a href="#docker-compose-yml" class="headerlink" title="docker-compose.yml"></a>docker-compose.yml</h5><p>编写 <code>docker-compose.yml</code> 文件，这个是 Compose 使用的主模板文件。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">version: &quot;3&quot;<br>services:<br>  redis:<br>    image: redis<br>  web:<br>    build:<br>      context: .<br>      dockerfile: Dockerfile<br>    ports:<br>      - 5000:5000<br>    environment:<br>      REDIS_HOST: redis<br></code></pre></td></tr></table></figure>
+<p><em>用WORKDIR,不要使用RUN cd,尽力使用绝对目录</em></p>
+<h5 id="5-ADD-and-COPY"><a href="#5-ADD-and-COPY" class="headerlink" title="5.ADD and COPY"></a>5.ADD and COPY</h5><ol>
+<li>大部分情况，copy优于ADD</li>
+<li>ADD除了COPY还有额外功能（解压）</li>
+<li>添加远程文件&#x2F;目录请使用curl或者wget</li>
+</ol>
+<h5 id="6-ENV"><a href="#6-ENV" class="headerlink" title="6.ENV"></a>6.ENV</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">ENV MYSQL_VERSION 5.6 #设置常量<br>RUN apt-get insatll -y mysql-server= &quot;$&#123;MYSQL_VERSION&#125;&quot; \<br>    &amp;&amp;rm -rf /var/lib/apt/lists/* #引用常量<br></code></pre></td></tr></table></figure>
 
-<h5 id="运行-compose-项目"><a href="#运行-compose-项目" class="headerlink" title="运行 compose 项目"></a>运行 compose 项目</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">docker-compose up -d<br></code></pre></td></tr></table></figure>
+<p><em>尽量使用ENV增加可维护性</em></p>
+<h5 id="7-RUN-amp-CMD-amp-ENTRYPOINT"><a href="#7-RUN-amp-CMD-amp-ENTRYPOINT" class="headerlink" title="7.RUN&amp;CMD&amp;ENTRYPOINT"></a>7.RUN&amp;CMD&amp;ENTRYPOINT</h5><p>RUN：执行命令比创建新的Image Layer</p>
+<p>CMD：设置容器启动后默认执行的命令和参数</p>
+<p>ENTRYPOINT：设置容器启动时运行的命令</p>
+<h5 id="8-SHELL格式和EXEC格式区别"><a href="#8-SHELL格式和EXEC格式区别" class="headerlink" title="8.SHELL格式和EXEC格式区别"></a>8.SHELL格式和EXEC格式区别</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="language-bash">shell格式</span><br>RUN apt-get install -y vim<br>CMD echo &quot;docker so easy&quot;<br>ENTRYPOINT echo &quot;docker so easy&quot;<br><span class="hljs-meta">  </span><br><span class="hljs-meta">#</span><span class="language-bash">Exec格式</span><br>RUN [&quot;apt-get&quot;,&quot;install&quot;,&quot;-y&quot;,&quot;vim&quot;]<br>CMD [&quot;echo&quot;,&quot;docker so easy&quot;]<br>ENTRYPOINT [&quot;echo&quot;,&quot;docker so easy&quot;]<br></code></pre></td></tr></table></figure>
 
-<p>此时访问本地 <code>5000</code> 端口，每次刷新页面，计数就会加 1。</p>
+<p>通过两个dockerfile来对比</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">FROM centos<br>ENV name Docker<br>ENTRYPOINT echo &quot;hello $name&quot;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">FROM centos<br>ENV name Docker<br>ENTRYPOINT [&quot;/bin/bash&quot;,&quot;-c&quot;,&quot;echo hello $name&quot;]<br></code></pre></td></tr></table></figure>
+
+<p><em>如果不加-c，运行镜像后输出echo hello $name</em></p>
+<h5 id="9-CMD和ENTRYPOINT注意点"><a href="#9-CMD和ENTRYPOINT注意点" class="headerlink" title="9.CMD和ENTRYPOINT注意点"></a>9.CMD和ENTRYPOINT注意点</h5><h6 id="CMD"><a href="#CMD" class="headerlink" title="CMD"></a>CMD</h6><ol>
+<li>容器启动时默认执行的命令</li>
+<li>如果docker run指定了其他命令，CMD命令会忽略</li>
+<li>如果定义了多个CMD，只有最后一个会执行</li>
+</ol>
+<h6 id="ENTRYPOINT"><a href="#ENTRYPOINT" class="headerlink" title="ENTRYPOINT"></a>ENTRYPOINT</h6><ol>
+<li>让容器以应用程序或者服务的形式运行</li>
+<li>不会被忽略，一定会执行</li>
+<li>最佳实践：写一个shell脚本作为entrypoint</li>
+</ol>
 
             </div>
             <hr>
@@ -286,7 +311,7 @@
                     
                       <a class="hover-with-bg" href="/tags/docker/">docker</a>
                     
-                      <a class="hover-with-bg" href="/tags/docker-compose/">docker-compose</a>
+                      <a class="hover-with-bg" href="/tags/Dockerfile/">Dockerfile</a>
                     
                   </div>
                 
@@ -303,18 +328,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/03/07/docker-docker-compose%E5%91%BD%E4%BB%A4/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">docker-compose命令</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2022/03/07/docker-docker-compose/">
-                        <span class="hidden-mobile">docker-compose简介</span>
+                      <a href="/2022/03/08/docker-Dockerfile/">
+                        <span class="hidden-mobile">Dockerfile</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

@@ -193,6 +193,343 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2022/03/08/docker-Dockerfile%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" target="_self">
+          Dockerfile最佳实践
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2022/03/08/docker-Dockerfile%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" target="_self">
+          
+          1.FROM FROM scratch #制作base image FROM centos #使用base image FROM ubuntu:14.04  尽量使用官方的image作为base images 2.LABELLABEL maintainer &#x3D; “&amp;#119;&amp;#x65;&amp;#x69;&amp;#x6d;&amp;#x69;&amp;#x6e;&amp;#x67;&amp;#48;&amp;#x32;&amp;#x40;&amp;#x6
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-08 18:10" pubdate>
+              2022-03-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/docker/">docker</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/docker/">docker</a>
+            
+              <a href="/tags/Dockerfile/">Dockerfile</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2022/03/08/docker-Dockerfile/" target="_self">
+          Dockerfile
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2022/03/08/docker-Dockerfile/" target="_self">
+          
+          Dockerfile说明：Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一条条构建镜像所需的指令和说明 FROM：基础镜像，当前新镜像是基于哪个镜像的 MAINTAINER：镜像维护者的姓名和邮箱地址 RUN：容器构建时需要运行的命令 EXPOSE：当前容器对外暴露出的端口 WORKDIR：指定在创建容器后，终端默认登陆的进来工作目录，一个落脚点 ENV：用来在构建镜像过程中设
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-08 17:47" pubdate>
+              2022-03-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/docker/">docker</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/docker/">docker</a>
+            
+              <a href="/tags/Dockerfile/">Dockerfile</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2022/03/08/docker-docker%E9%95%9C%E5%83%8F/" target="_self">
+          docker镜像
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2022/03/08/docker-docker%E9%95%9C%E5%83%8F/" target="_self">
+          
+          获取镜像Docker Hub 上有大量的高质量的镜像可以用，这里我们就说一下怎么获取这些镜像。 从 Docker 镜像仓库获取镜像的命令是 docker pull。其命令格式为： 1docker pull [选项] [Docker Registry 地址[:端口号]&#x2F;]仓库名[:标签]  具体的选项可以通过 docker pull --help 命令看到，这里我们说一下镜像名称的格式。  Dock
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-08 16:37" pubdate>
+              2022-03-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/docker/">docker</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/docker/">docker</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2022/03/08/docker-docker%E5%AE%B9%E5%99%A8/" target="_self">
+          docker容器
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2022/03/08/docker-docker%E5%AE%B9%E5%99%A8/" target="_self">
+          
+          常用容器命令•列出当前所有容器：docker ps [OPTIONS] •新建并启动容器：docker run [OPTIONS] IMAGE [COMMAND] [ARG] •启动容器：docker start 容器ID或容器名 •重启容器：docker restart 容器ID或容器名 •停止容器：docker stop 容器ID或容器名 •删除已容器：docker rm容器ID或容器名 •查
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-08 15:43" pubdate>
+              2022-03-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/docker/">docker</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/docker/">docker</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2022/03/08/docker-docker%E4%BB%93%E5%BA%93/" target="_self">
+          docker仓库
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2022/03/08/docker-docker%E4%BB%93%E5%BA%93/" target="_self">
+          
+          仓库（Repository）是集中存放镜像的地方。 一个容易混淆的概念是注册服务器（Registry）。实际上注册服务器是管理仓库的具体服务器，每个服务器上可以有多个仓库，而每个仓库下面有多个镜像。从这方面来说，仓库可以被认为是一个具体的项目或目录。例如对于仓库地址 dl.dockerpool.com&#x2F;ubuntu 来说，dl.dockerpool.com 是注册服务器地址，ubuntu 是仓库名
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-08 14:17" pubdate>
+              2022-03-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/docker/">docker</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/docker/">docker</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2022/03/07/docker-docker-compose%E6%A8%A1%E6%9D%BF%E6%96%87%E4%BB%B6/" target="_self">
+          docker-compose模板文件
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2022/03/07/docker-docker-compose%E6%A8%A1%E6%9D%BF%E6%96%87%E4%BB%B6/" target="_self">
+          
+          模板文件是使用 Compose 的核心，涉及到的指令关键字也比较多。但大家不用担心，这里面大部分指令跟 docker run 相关参数的含义都是类似的。 默认的模板文件名称为 docker-compose.yml，格式为 YAML 格式。 12345678version: &quot;3&quot;services:  webapp:    image: examples&#x2F;web    ports
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-07 18:23" pubdate>
+              2022-03-07
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/docker/">docker</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/docker/">docker</a>
+            
+              <a href="/tags/docker-compose/">docker-compose</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2022/03/07/docker-docker-compose%E5%91%BD%E4%BB%A4/" target="_self">
+          docker-compose命令
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2022/03/07/docker-docker-compose%E5%91%BD%E4%BB%A4/" target="_self">
+          
+          命令对象与格式对于 Compose 来说，大部分命令的对象既可以是项目本身，也可以指定为项目中的服务或者容器。如果没有特别的说明，命令对象将是项目，这意味着项目中所有的服务都会受到命令影响。 执行 docker-compose [COMMAND] --help 或者 docker-compose help [COMMAND] 可以查看具体某个命令的使用格式。 docker-compose 命令的基
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-07 18:12" pubdate>
+              2022-03-07
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/docker/">docker</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/docker/">docker</a>
+            
+              <a href="/tags/docker-compose/">docker-compose</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2022/03/07/docker-docker-compose%E4%BD%BF%E7%94%A8/" target="_self">
           docker-compose使用
         </a>
@@ -214,6 +551,13 @@
             </time>
           </div>
         
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/docker/">docker</a>
+            
+          </div>
         
         
           <div class="post-meta">
@@ -320,56 +664,13 @@
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2022/03/01/%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" target="_self">
-          延时消息
-        </a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/2022/03/01/%E5%BB%B6%E6%97%B6%E6%B6%88%E6%81%AF/" target="_self">
-          
-          延时消息（定时消息）是指在异步场景下，生产者发送的消息不希望被消费者马上消费，而是在延时或在指定时间消费。延时消费场景应用比较广泛，如计算电商订单是否支付、活动时间内任务是否完成。 实现方案基于外部存储实现的方案1外部存储指的是在MQ本身自带的存储以外又引入的其他存储系统。  基于外部存储的方案实际都是一样的套路，将MQ和延时模块区分开来，延时消息模块是一个独立的服务&#x2F;进程。消息先保存在
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-03-01 16:07" pubdate>
-              2022-03-01
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/%E5%AD%A6%E4%B9%A0/">学习</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
-            
-              <a href="/tags/%E6%9E%B6%E6%9E%84/">架构</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
 
 
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/#board">2</a><a class="extend next" rel="next" href="/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
 
 
 
